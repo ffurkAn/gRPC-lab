@@ -18,8 +18,22 @@ message SumResponse {
     int32 sum = 1;
 }
 
-service SumService {
-    // unary
+message PrimeNumber {
+    int32 number = 1;
+}
 
+message PrimeNumberRequest {
+    PrimeNumber primeNumber = 1;
+}
+
+message PrimeNumberResponseStream {
+    int32 result = 1;
+}
+
+service SumService {
+
+    // unary
     rpc Sum(SumRequest) returns (SumResponse) {};
+
+    rpc GetPrimeNumberDecomposition(PrimeNumberRequest) returns (stream PrimeNumberResponseStream) {};
 }

@@ -1,9 +1,6 @@
 package com.github.simplesteph.grpc.greeting.server;
 
-import com.proto.sum.Sum;
-import com.proto.sum.SumRequest;
-import com.proto.sum.SumResponse;
-import com.proto.sum.SumServiceGrpc;
+import com.proto.sum.*;
 import io.grpc.stub.StreamObserver;
 
 public class SumServiceImpl extends SumServiceGrpc.SumServiceImplBase {
@@ -22,4 +19,31 @@ public class SumServiceImpl extends SumServiceGrpc.SumServiceImplBase {
 
         responseObserver.onCompleted();
     }
+
+        @Override
+        public void getPrimeNumberDecomposition(PrimeNumberRequest request, StreamObserver<PrimeNumberResponseStream> responseObserver) {
+            int primeNumber = request.getPrimeNumber().getNumber();
+
+            int k = 2;
+
+            try{
+                while(primeNumber > 1){
+                    if(primeNumber % k == 0){
+                        responseObserver.onNext(PrimeNumberResponseStream.newBuilder().setResult(k).build());
+                        primeNumber = primeNumber / k;
+                    }else{
+                        k += 1;
+                    }
+
+                    Thread.sleep(1000L);
+                }
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }finally {
+                responseObserver.onCompleted();
+
+            }
+
+        }
+
 }

@@ -20,7 +20,9 @@ public class gRPCClient {
                 .build();
 
 
-        doUnaryCall(channel);
+        // doUnaryCall(channel);
+
+        doServerStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -53,6 +55,20 @@ public class gRPCClient {
 
     private void doServerStreamingCall(ManagedChannel channel) {
 
+        SumServiceGrpc.SumServiceBlockingStub sumServiceBlockingStub = SumServiceGrpc.newBlockingStub(channel);
+
+        PrimeNumber primeNumber = PrimeNumber.newBuilder()
+                .setNumber(120)
+                .build();
+
+        PrimeNumberRequest primeNumberRequest = PrimeNumberRequest.newBuilder()
+                .setPrimeNumber(primeNumber)
+                .build();
+
+        sumServiceBlockingStub.getPrimeNumberDecomposition(primeNumberRequest)
+                .forEachRemaining(primeNumberResponseStream -> {
+                    System.out.println(primeNumberResponseStream.getResult());
+                });
 
     }
 
