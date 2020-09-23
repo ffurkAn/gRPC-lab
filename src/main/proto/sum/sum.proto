@@ -30,10 +30,22 @@ message PrimeNumberResponseStream {
     int32 result = 1;
 }
 
+message AvgNumberRequestStream {
+    int32 number = 1;
+}
+
+message AvgNumberResponse {
+    double result = 1;
+}
+
 service SumService {
 
     // unary
     rpc Sum(SumRequest) returns (SumResponse) {};
 
+    // server streaming
     rpc GetPrimeNumberDecomposition(PrimeNumberRequest) returns (stream PrimeNumberResponseStream) {};
+
+    // client streaming
+    rpc GetAvgNumber(stream AvgNumberRequestStream) returns (AvgNumberResponse) {}
 }

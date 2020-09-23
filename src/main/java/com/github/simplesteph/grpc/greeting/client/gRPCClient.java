@@ -2,8 +2,11 @@ package com.github.simplesteph.grpc.greeting.client;
 
 import com.proto.sum.*;
 import io.grpc.*;
+import io.grpc.stub.StreamObserver;
 
 import javax.net.ssl.SSLException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class gRPCClient {
 
@@ -21,8 +24,8 @@ public class gRPCClient {
 
 
         // doUnaryCall(channel);
-
-        doServerStreamingCall(channel);
+        // doServerStreamingCall(channel);
+        doClientStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -74,6 +77,59 @@ public class gRPCClient {
 
     private void doClientStreamingCall(ManagedChannel channel) {
 
+        SumServiceGrpc.SumServiceStub sumServiceStub = SumServiceGrpc.newStub(channel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<AvgNumberRequestStream> requestStreamStreamObserver =
+                sumServiceStub.getAvgNumber(new StreamObserver<AvgNumberResponse>() {
+            @Override
+            public void onNext(AvgNumberResponse value) {
+
+                // we get a response from the server
+                // since this is client streming, onnext will called once
+
+                System.out.println("Average is: " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+                // onCompleted called right after onNext
+                // server done sending message
+                System.out.println("completed");
+                latch.countDown();
+            }
+        });
+
+        System.out.println("sending message 1");
+        requestStreamStreamObserver.onNext(AvgNumberRequestStream.newBuilder()
+                .setNumber(1).build());
+
+        System.out.println("sending message 2");
+        requestStreamStreamObserver.onNext(AvgNumberRequestStream.newBuilder()
+                .setNumber(2).build());
+
+        System.out.println("sending message 3");
+        requestStreamStreamObserver.onNext(AvgNumberRequestStream.newBuilder()
+                .setNumber(3).build());
+
+        System.out.println("sending message 4");
+        requestStreamStreamObserver.onNext(AvgNumberRequestStream.newBuilder()
+                .setNumber(4).build());
+
+        requestStreamStreamObserver.onCompleted();
+
+        try {
+            latch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void doBiDiStreamingCall(ManagedChannel channel) {

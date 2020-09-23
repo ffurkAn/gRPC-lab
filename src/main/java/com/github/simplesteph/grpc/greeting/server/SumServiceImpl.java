@@ -46,4 +46,40 @@ public class SumServiceImpl extends SumServiceGrpc.SumServiceImplBase {
 
         }
 
+    @Override
+    public StreamObserver<AvgNumberRequestStream> getAvgNumber(StreamObserver<AvgNumberResponse> responseObserver) {
+
+
+        StreamObserver<AvgNumberRequestStream> requestStreamStreamObserver = new StreamObserver<AvgNumberRequestStream>() {
+
+            int numberOfIncomingMessage = 0;
+            int total = 0;
+
+            @Override
+            public void onNext(AvgNumberRequestStream value) {
+                // client sends a message
+                System.out.println("message received: " + value.getNumber());
+                total += value.getNumber();
+                numberOfIncomingMessage += 1;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                double avg = (double) total / numberOfIncomingMessage;
+                responseObserver.onNext(AvgNumberResponse.newBuilder()
+                        .setResult(avg)
+                        .build());
+
+                responseObserver.onCompleted();
+            }
+        };
+
+        return requestStreamStreamObserver;
+
+    }
 }
