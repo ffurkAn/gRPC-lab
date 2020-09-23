@@ -38,6 +38,14 @@ message AvgNumberResponse {
     double result = 1;
 }
 
+message FindMaximumRequest {
+    int32 number = 1;
+}
+
+message FindMaximumResponse {
+    int32 number = 1;
+}
+
 service SumService {
 
     // unary
@@ -48,4 +56,6 @@ service SumService {
 
     // client streaming
     rpc GetAvgNumber(stream AvgNumberRequestStream) returns (AvgNumberResponse) {}
+
+    rpc FindMaximum(stream FindMaximumRequest) returns (stream FindMaximumResponse) {}
 }

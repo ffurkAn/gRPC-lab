@@ -5,6 +5,7 @@ import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 
 import javax.net.ssl.SSLException;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +26,8 @@ public class gRPCClient {
 
         // doUnaryCall(channel);
         // doServerStreamingCall(channel);
-        doClientStreamingCall(channel);
+        // doClientStreamingCall(channel);
+        doBiDiStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -133,10 +135,60 @@ public class gRPCClient {
     }
 
     private void doBiDiStreamingCall(ManagedChannel channel) {
+        SumServiceGrpc.SumServiceStub sumServiceStub = SumServiceGrpc.newStub(channel);
 
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<FindMaximumRequest> requestStreamObserver =
+                sumServiceStub.findMaximum(new StreamObserver<FindMaximumResponse>() {
+
+                    @Override
+                    public void onNext(FindMaximumResponse value) {
+
+                        System.out.println("new max number -> " + value.getNumber());
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                        System.out.println("server is done sending messages");
+                        //latch.countDown();
+                    }
+                });
+
+
+        Arrays.asList(1,5,3,6,2,20).forEach(number -> {
+            System.out.println("sending new value: " + number);
+            requestStreamObserver.onNext(FindMaximumRequest.newBuilder()
+                    .setNumber(number)
+                    .build());
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        requestStreamObserver.onCompleted();
+
+        try {
+            latch.await(3, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void doUnaryCallWithDeadline(ManagedChannel channel) {
+
+
     }
 
 }
