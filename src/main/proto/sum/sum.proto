@@ -51,6 +51,9 @@ service SumService {
     // unary
     rpc Sum(SumRequest) returns (SumResponse) {};
 
+    // unary with deadline
+    rpc SumWithDeadline (SumRequest) returns (SumResponse) {};
+
     // server streaming
     rpc GetPrimeNumberDecomposition(PrimeNumberRequest) returns (stream PrimeNumberResponseStream) {};
 

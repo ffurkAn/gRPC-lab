@@ -25,9 +25,10 @@ public class gRPCClient {
 
 
         // doUnaryCall(channel);
+        doUnaryCallWithDeadline(channel);
         // doServerStreamingCall(channel);
         // doClientStreamingCall(channel);
-        doBiDiStreamingCall(channel);
+        // doBiDiStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -187,6 +188,25 @@ public class gRPCClient {
     }
 
     private void doUnaryCallWithDeadline(ManagedChannel channel) {
+
+        SumServiceGrpc.SumServiceBlockingStub sumServiceBlockingStub = SumServiceGrpc.newBlockingStub(channel);
+
+
+        try {
+            SumResponse sumResponse = sumServiceBlockingStub.withDeadline(Deadline.after(5L, TimeUnit.SECONDS))
+                    .sumWithDeadline(SumRequest.newBuilder()
+                            .setSum(Sum.newBuilder()
+                                    .setFirstNumber(2)
+                                    .setSecondNumber(7)
+                                    .build())
+                            .build());
+
+            System.out.println(sumResponse.getSum());
+        } catch (StatusRuntimeException e) {
+            e.printStackTrace();
+        }
+
+
 
 
     }

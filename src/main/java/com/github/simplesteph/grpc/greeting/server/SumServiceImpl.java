@@ -20,7 +20,29 @@ public class SumServiceImpl extends SumServiceGrpc.SumServiceImplBase {
         responseObserver.onCompleted();
     }
 
-        @Override
+    @Override
+    public void sumWithDeadline(SumRequest request, StreamObserver<SumResponse> responseObserver) {
+
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Sum sum = request.getSum();
+        int sumResult = sum.getFirstNumber() + sum.getSecondNumber();
+
+        SumResponse sumResponse = SumResponse.newBuilder()
+                .setSum(sumResult)
+                .build();
+
+        responseObserver.onNext(sumResponse);
+
+        responseObserver.onCompleted();
+
+    }
+
+    @Override
         public void getPrimeNumberDecomposition(PrimeNumberRequest request, StreamObserver<PrimeNumberResponseStream> responseObserver) {
             int primeNumber = request.getPrimeNumber().getNumber();
 
