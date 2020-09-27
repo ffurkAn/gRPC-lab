@@ -24,11 +24,11 @@ public class gRPCClient {
                 .build();
 
 
-        // doUnaryCall(channel);
+        doUnaryCall(channel);
         doUnaryCallWithDeadline(channel);
-        // doServerStreamingCall(channel);
-        // doClientStreamingCall(channel);
-        // doBiDiStreamingCall(channel);
+        doServerStreamingCall(channel);
+        doClientStreamingCall(channel);
+        doBiDiStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -86,29 +86,29 @@ public class gRPCClient {
 
         StreamObserver<AvgNumberRequestStream> requestStreamStreamObserver =
                 sumServiceStub.getAvgNumber(new StreamObserver<AvgNumberResponse>() {
-            @Override
-            public void onNext(AvgNumberResponse value) {
+                    @Override
+                    public void onNext(AvgNumberResponse value) {
 
-                // we get a response from the server
-                // since this is client streming, onnext will called once
+                        // we get a response from the server
+                        // since this is client streming, onnext will called once
 
-                System.out.println("Average is: " + value.getResult());
-            }
+                        System.out.println("Average is: " + value.getResult());
+                    }
 
-            @Override
-            public void onError(Throwable t) {
+                    @Override
+                    public void onError(Throwable t) {
 
-            }
+                    }
 
-            @Override
-            public void onCompleted() {
+                    @Override
+                    public void onCompleted() {
 
-                // onCompleted called right after onNext
-                // server done sending message
-                System.out.println("completed");
-                latch.countDown();
-            }
-        });
+                        // onCompleted called right after onNext
+                        // server done sending message
+                        System.out.println("completed");
+                        latch.countDown();
+                    }
+                });
 
         System.out.println("sending message 1");
         requestStreamStreamObserver.onNext(AvgNumberRequestStream.newBuilder()
@@ -164,7 +164,7 @@ public class gRPCClient {
                 });
 
 
-        Arrays.asList(1,5,3,6,2,20).forEach(number -> {
+        Arrays.asList(1, 5, 3, 6, 2, 20).forEach(number -> {
             System.out.println("sending new value: " + number);
             requestStreamObserver.onNext(FindMaximumRequest.newBuilder()
                     .setNumber(number)
@@ -205,8 +205,6 @@ public class gRPCClient {
         } catch (StatusRuntimeException e) {
             e.printStackTrace();
         }
-
-
 
 
     }
